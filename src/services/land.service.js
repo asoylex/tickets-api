@@ -8,7 +8,7 @@ const WRITABLE_FIELDS = ['code', 'name', 'isActive'];
 
 const getById = async (id) => {
   const land = await Land.findByPk(id);
-  if (!land) throw new HttpError(404, 'Land not found');
+  if (!land) throw new HttpError(404, 'Ubicación no encontrada');
   return land;
 };
 

@@ -11,7 +11,7 @@ const microsToAmount = (micros) => Math.round(micros / 10000) / 100;
 const parseYear = (value) => {
   const year = Number(value);
   if (!Number.isInteger(year) || year < 2000 || year > 2100) {
-    throw new HttpError(400, 'Validation failed', [{ field: 'year', message: 'year must be an integer between 2000 and 2100' }]);
+    throw new HttpError(400, 'Hay datos que no son válidos', [{ field: 'year', message: 'El año debe ser un número entero entre 2000 y 2100' }]);
   }
   return year;
 };
@@ -22,15 +22,15 @@ const parseWeek = (query) => {
   const week = Number(query.week);
 
   if (!Number.isInteger(year) || year < 2000 || year > 2100) {
-    details.push({ field: 'year', message: 'year must be an integer between 2000 and 2100' });
+    details.push({ field: 'year', message: 'El año debe ser un número entero entre 2000 y 2100' });
   }
   if (!Number.isInteger(week) || week < 1 || week > 53) {
-    details.push({ field: 'week', message: 'week must be an integer between 1 and 53' });
+    details.push({ field: 'week', message: 'La semana debe ser un número entero entre 1 y 53' });
   }
-  if (details.length) throw new HttpError(400, 'Validation failed', details);
+  if (details.length) throw new HttpError(400, 'Hay datos que no son válidos', details);
 
   const range = getIsoWeekRange(year, week);
-  if (!range) throw new HttpError(400, `Week ${week} does not exist in ${year}`);
+  if (!range) throw new HttpError(400, `La semana ${week} no existe en ${year}`);
   return { year, week, ...range };
 };
 
@@ -40,7 +40,7 @@ const getWeeklyPayments = async (query) => {
 
   if (query.supplierId !== undefined) {
     const supplierId = Number(query.supplierId);
-    if (!Number.isInteger(supplierId) || supplierId < 1) throw new HttpError(400, 'Invalid supplierId');
+    if (!Number.isInteger(supplierId) || supplierId < 1) throw new HttpError(400, 'El proveedor indicado no es válido');
     where.supplierId = supplierId;
   }
 

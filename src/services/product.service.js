@@ -8,7 +8,7 @@ const WRITABLE_FIELDS = ['code', 'name', 'isActive'];
 
 const getById = async (id) => {
   const product = await Product.findByPk(id);
-  if (!product) throw new HttpError(404, 'Product not found');
+  if (!product) throw new HttpError(404, 'Producto no encontrado');
   return product;
 };
 

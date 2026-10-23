@@ -23,7 +23,7 @@ const listInclude = [
 
 const parseItems = (items) => {
   if (!Array.isArray(items) || items.length === 0) {
-    throw new HttpError(400, 'A ticket needs at least one item');
+    throw new HttpError(400, 'El ticket necesita al menos una línea');
   }
 
   const details = [];
@@ -33,7 +33,7 @@ const parseItems = (items) => {
     return result.data;
   });
 
-  if (details.length) throw new HttpError(400, 'Validation failed', details);
+  if (details.length) throw new HttpError(400, 'Hay datos que no son válidos', details);
   return parsed;
 };
 
@@ -42,7 +42,7 @@ const getById = async (id) => {
     include: detailInclude,
     order: [[{ model: TicketItem, as: 'items' }, 'id', 'ASC']],
   });
-  if (!ticket) throw new HttpError(404, 'Ticket not found');
+  if (!ticket) throw new HttpError(404, 'Ticket no encontrado');
   return ticket;
 };
 
@@ -57,7 +57,7 @@ const list = async (query) => {
   const dateRange = {};
   ['dateFrom', 'dateTo'].forEach((name) => {
     if (query[name] === undefined) return;
-    if (!DATE_PATTERN.test(query[name])) throw new HttpError(400, `${name} must use the format YYYY-MM-DD`);
+    if (!DATE_PATTERN.test(query[name])) throw new HttpError(400, `El filtro ${name} debe tener el formato AAAA-MM-DD`);
     dateRange[name === 'dateFrom' ? Op.gte : Op.lte] = query[name];
   });
   if (Reflect.ownKeys(dateRange).length) where.date = dateRange;
@@ -101,7 +101,7 @@ const update = async (id, body) => {
 
   await sequelize.transaction(async (transaction) => {
     const ticket = await Ticket.findByPk(id, { transaction });
-    if (!ticket) throw new HttpError(404, 'Ticket not found');
+    if (!ticket) throw new HttpError(404, 'Ticket no encontrado');
 
     await ticket.update(pick(body, TICKET_FIELDS), { transaction });
 
@@ -118,7 +118,7 @@ const update = async (id, body) => {
 
 const remove = async (id) => {
   const deleted = await Ticket.destroy({ where: { id } });
-  if (!deleted) throw new HttpError(404, 'Ticket not found');
+  if (!deleted) throw new HttpError(404, 'Ticket no encontrado');
 };
 
 module.exports = { list, getById, create, update, remove };

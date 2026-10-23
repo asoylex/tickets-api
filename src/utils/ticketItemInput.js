@@ -1,8 +1,9 @@
 const pick = require('./pick');
 
 const ITEM_FIELDS = ['productId', 'quantity', 'price'];
+const AMOUNT_LABELS = { quantity: 'La cantidad', price: 'El precio' };
 
-// Validates the body of a ticket line. With partial: true, missing fields are accepted (used by PATCH).
+// Valida el cuerpo de una línea de ticket. Con partial: true se aceptan campos ausentes (lo usa PATCH).
 const parseItemInput = (input, { prefix = '', partial = false } = {}) => {
   const data = pick(input, ITEM_FIELDS);
   const details = [];
@@ -10,7 +11,7 @@ const parseItemInput = (input, { prefix = '', partial = false } = {}) => {
 
   if (!(partial && data.productId === undefined)) {
     if (!Number.isInteger(data.productId) || data.productId < 1) {
-      addError('productId', 'productId must be a positive integer');
+      addError('productId', 'Selecciona un producto');
     }
   }
 
@@ -19,7 +20,7 @@ const parseItemInput = (input, { prefix = '', partial = false } = {}) => {
     const value = data[name];
     const number = Number(value);
     if (value === undefined || value === null || value === '' || !Number.isFinite(number) || number < 0) {
-      addError(name, `${name} must be a number greater than or equal to 0`);
+      addError(name, `${AMOUNT_LABELS[name]} debe ser un número mayor o igual a 0`);
     } else {
       data[name] = number;
     }

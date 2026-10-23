@@ -11,8 +11,8 @@ const MIN_PASSWORD_LENGTH = 8;
 
 const hashPassword = (password) => {
   if (typeof password !== 'string' || password.length < MIN_PASSWORD_LENGTH) {
-    throw new HttpError(400, 'Validation failed', [
-      { field: 'password', message: `password must be a string of at least ${MIN_PASSWORD_LENGTH} characters` },
+    throw new HttpError(400, 'Hay datos que no son válidos', [
+      { field: 'password', message: `La contraseña debe tener al menos ${MIN_PASSWORD_LENGTH} caracteres` },
     ]);
   }
   return bcrypt.hash(password, SALT_ROUNDS);
@@ -20,7 +20,7 @@ const hashPassword = (password) => {
 
 const getById = async (id) => {
   const user = await User.findByPk(id);
-  if (!user) throw new HttpError(404, 'User not found');
+  if (!user) throw new HttpError(404, 'Usuario no encontrado');
   return user;
 };
 
@@ -54,7 +54,7 @@ const update = async (id, body, currentUserId) => {
   const data = pick(body, WRITABLE_FIELDS);
 
   if (id === currentUserId && (data.isActive === false || (data.role !== undefined && data.role !== 'admin'))) {
-    throw new HttpError(409, 'You cannot deactivate your own user or remove your own admin role');
+    throw new HttpError(409, 'No puedes desactivar tu propio usuario ni quitarte el rol de administrador');
   }
 
   if (body.password !== undefined) data.passwordHash = await hashPassword(body.password);
@@ -62,7 +62,7 @@ const update = async (id, body, currentUserId) => {
 };
 
 const remove = async (id, currentUserId) => {
-  if (id === currentUserId) throw new HttpError(409, 'You cannot delete your own user');
+  if (id === currentUserId) throw new HttpError(409, 'No puedes eliminar tu propio usuario');
   const user = await getById(id);
   await user.destroy();
 };

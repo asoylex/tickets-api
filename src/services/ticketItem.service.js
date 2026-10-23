@@ -6,12 +6,12 @@ const itemInclude = [{ model: Product, as: 'product' }];
 
 const ensureTicketExists = async (ticketId) => {
   const ticket = await Ticket.findByPk(ticketId, { attributes: ['id'] });
-  if (!ticket) throw new HttpError(404, 'Ticket not found');
+  if (!ticket) throw new HttpError(404, 'Ticket no encontrado');
 };
 
 const findItem = async (ticketId, id) => {
   const item = await TicketItem.findOne({ where: { id, ticketId }, include: itemInclude });
-  if (!item) throw new HttpError(404, 'Ticket item not found');
+  if (!item) throw new HttpError(404, 'Línea del ticket no encontrada');
   return item;
 };
 
@@ -29,7 +29,7 @@ const getById = async (ticketId, id) => {
 const create = async (ticketId, body) => {
   await ensureTicketExists(ticketId);
   const { data, details } = parseItemInput(body);
-  if (details.length) throw new HttpError(400, 'Validation failed', details);
+  if (details.length) throw new HttpError(400, 'Hay datos que no son válidos', details);
 
   const item = await TicketItem.create({ ...data, ticketId });
   return findItem(ticketId, item.id);
@@ -39,7 +39,7 @@ const update = async (ticketId, id, body) => {
   await ensureTicketExists(ticketId);
   const item = await findItem(ticketId, id);
   const { data, details } = parseItemInput(body, { partial: true });
-  if (details.length) throw new HttpError(400, 'Validation failed', details);
+  if (details.length) throw new HttpError(400, 'Hay datos que no son válidos', details);
 
   await item.update(data);
   return findItem(ticketId, id);
@@ -52,7 +52,7 @@ const remove = async (ticketId, id) => {
 
   const linesInTicket = await TicketItem.count({ where: { ticketId } });
   if (linesInTicket === 1) {
-    throw new HttpError(409, 'A ticket needs at least one item. Delete the ticket instead.');
+    throw new HttpError(409, 'El ticket necesita al menos una línea. Si ya no lo necesitas, elimina el ticket completo');
   }
   await item.destroy();
 };

@@ -11,14 +11,14 @@ const login = async (body) => {
   const { email, password } = body || {};
 
   const details = [];
-  if (typeof email !== 'string' || !email.trim()) details.push({ field: 'email', message: 'email is required' });
-  if (typeof password !== 'string' || !password) details.push({ field: 'password', message: 'password is required' });
-  if (details.length) throw new HttpError(400, 'Validation failed', details);
+  if (typeof email !== 'string' || !email.trim()) details.push({ field: 'email', message: 'El correo es obligatorio' });
+  if (typeof password !== 'string' || !password) details.push({ field: 'password', message: 'La contraseña es obligatoria' });
+  if (details.length) throw new HttpError(400, 'Hay datos que no son válidos', details);
 
   const user = await User.scope('withPassword').findOne({ where: { email: email.trim().toLowerCase() } });
   const validPassword = await bcrypt.compare(password, user ? user.passwordHash : DUMMY_HASH);
-  if (!user || !validPassword) throw new HttpError(401, 'Invalid credentials');
-  if (!user.isActive) throw new HttpError(403, 'User is inactive');
+  if (!user || !validPassword) throw new HttpError(401, 'Correo o contraseña incorrectos');
+  if (!user.isActive) throw new HttpError(403, 'Tu usuario está desactivado. Contacta al administrador');
 
   const token = jwt.sign({ role: user.role }, secret, {
     subject: String(user.id),
