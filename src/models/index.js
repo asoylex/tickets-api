@@ -18,8 +18,7 @@ fs.readdirSync(__dirname)
   });
 
 Object.values(db).forEach((model) => {
-
-    if (db[model].associate) {
+    if (model.associate) {
         model.associate(db);
     }
 });
