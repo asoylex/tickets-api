@@ -15,22 +15,30 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING(30),
         allowNull: false,
         unique: true,
-        validate: { notEmpty: true },
+        validate: {
+          notNull: { msg: 'El código es obligatorio' },
+          notEmpty: { msg: 'El código es obligatorio' },
+        },
       },
       date: {
         type: DataTypes.DATEONLY,
         allowNull: false,
-        validate: { isDate: true },
+        validate: {
+          notNull: { msg: 'La fecha es obligatoria' },
+          isDate: { msg: 'La fecha no es válida' },
+        },
       },
       supplierId: {
         type: DataTypes.INTEGER,
         allowNull: false,
+        validate: { notNull: { msg: 'El proveedor es obligatorio' } },
       },
       landId: {
         type: DataTypes.INTEGER,
         allowNull: false,
+        validate: { notNull: { msg: 'La ubicación es obligatoria' } },
       },
-      // Only available when the items were loaded together with the ticket.
+      // Solo está disponible cuando las líneas se cargaron junto con el ticket.
       total: {
         type: DataTypes.VIRTUAL,
         get() {

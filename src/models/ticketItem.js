@@ -1,6 +1,6 @@
 const { Model } = require('sequelize');
 
-// pg returns DECIMAL columns as strings, so they are converted to numbers on read.
+// pg devuelve las columnas DECIMAL como texto, por eso se convierten a número al leerlas.
 const toNumber = (value) => (value === null || value === undefined ? value : Number(value));
 
 module.exports = (sequelize, DataTypes) => {
@@ -16,15 +16,20 @@ module.exports = (sequelize, DataTypes) => {
       ticketId: {
         type: DataTypes.INTEGER,
         allowNull: false,
+        validate: { notNull: { msg: 'El ticket es obligatorio' } },
       },
       productId: {
         type: DataTypes.INTEGER,
         allowNull: false,
+        validate: { notNull: { msg: 'El producto es obligatorio' } },
       },
       quantity: {
         type: DataTypes.DECIMAL(12, 2),
         allowNull: false,
-        validate: { min: 0 },
+        validate: {
+          notNull: { msg: 'La cantidad es obligatoria' },
+          min: { args: [0], msg: 'La cantidad no puede ser negativa' },
+        },
         get() {
           return toNumber(this.getDataValue('quantity'));
         },
@@ -32,7 +37,10 @@ module.exports = (sequelize, DataTypes) => {
       price: {
         type: DataTypes.DECIMAL(12, 4),
         allowNull: false,
-        validate: { min: 0 },
+        validate: {
+          notNull: { msg: 'El precio es obligatorio' },
+          min: { args: [0], msg: 'El precio no puede ser negativo' },
+        },
         get() {
           return toNumber(this.getDataValue('price'));
         },

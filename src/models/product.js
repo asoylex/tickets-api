@@ -13,12 +13,18 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING(30),
         allowNull: false,
         unique: true,
-        validate: { notEmpty: true },
+        validate: {
+          notNull: { msg: 'El código es obligatorio' },
+          notEmpty: { msg: 'El código es obligatorio' },
+        },
       },
       name: {
         type: DataTypes.STRING(160),
         allowNull: false,
-        validate: { notEmpty: true },
+        validate: {
+          notNull: { msg: 'El nombre es obligatorio' },
+          notEmpty: { msg: 'El nombre es obligatorio' },
+        },
       },
       isActive: {
         type: DataTypes.BOOLEAN,
