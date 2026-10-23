@@ -4,6 +4,7 @@ const landRoutes = require('./land.routes');
 const productRoutes = require('./product.routes');
 const ticketRoutes = require('./ticket.routes');
 const userRoutes = require('./user.routes');
+const paymentRoutes = require('./payment.routes');
 
 const router = Router();
 
@@ -16,5 +17,6 @@ router.use('/lands', landRoutes);
 router.use('/products', productRoutes);
 router.use('/tickets', ticketRoutes);
 router.use('/users', userRoutes);
+router.use('/payments', paymentRoutes);
 
 module.exports = router;
