@@ -49,14 +49,20 @@ const create = async (body) => {
   return User.create({ ...pick(body, WRITABLE_FIELDS), passwordHash });
 };
 
-const update = async (id, body) => {
+const update = async (id, body, currentUserId) => {
   const user = await getById(id);
   const data = pick(body, WRITABLE_FIELDS);
+
+  if (id === currentUserId && (data.isActive === false || (data.role !== undefined && data.role !== 'admin'))) {
+    throw new HttpError(409, 'You cannot deactivate your own user or remove your own admin role');
+  }
+
   if (body.password !== undefined) data.passwordHash = await hashPassword(body.password);
   return user.update(data);
 };
 
-const remove = async (id) => {
+const remove = async (id, currentUserId) => {
+  if (id === currentUserId) throw new HttpError(409, 'You cannot delete your own user');
   const user = await getById(id);
   await user.destroy();
 };

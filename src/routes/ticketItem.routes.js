@@ -1,14 +1,15 @@
 const { Router } = require('express');
 const ticketItemController = require('../controllers/ticketItem.controller');
+const { authorize } = require('../middlewares/auth');
 
-// mergeParams lets this router read :ticketId from the parent route.
+// mergeParams permite leer :ticketId de la ruta padre.
 const router = Router({ mergeParams: true });
 
 router.get('/', ticketItemController.list);
-router.post('/', ticketItemController.create);
 router.get('/:id', ticketItemController.getById);
+router.post('/', ticketItemController.create);
 router.put('/:id', ticketItemController.update);
 router.patch('/:id', ticketItemController.update);
-router.delete('/:id', ticketItemController.remove);
+router.delete('/:id', authorize('admin'), ticketItemController.remove);
 
 module.exports = router;

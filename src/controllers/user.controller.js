@@ -14,11 +14,11 @@ const create = async (req, res) => {
 };
 
 const update = async (req, res) => {
-  res.json(await userService.update(parseId(req.params.id), req.body));
+  res.json(await userService.update(parseId(req.params.id), req.body, req.user.id));
 };
 
 const remove = async (req, res) => {
-  await userService.remove(parseId(req.params.id));
+  await userService.remove(parseId(req.params.id), req.user.id);
   res.status(204).send();
 };
 

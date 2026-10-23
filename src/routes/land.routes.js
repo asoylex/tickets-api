@@ -1,13 +1,14 @@
 const { Router } = require('express');
 const landController = require('../controllers/land.controller');
+const { authorize } = require('../middlewares/auth');
 
 const router = Router();
 
 router.get('/', landController.list);
-router.post('/', landController.create);
 router.get('/:id', landController.getById);
-router.put('/:id', landController.update);
-router.patch('/:id', landController.update);
-router.delete('/:id', landController.remove);
+router.post('/', authorize('admin'), landController.create);
+router.put('/:id', authorize('admin'), landController.update);
+router.patch('/:id', authorize('admin'), landController.update);
+router.delete('/:id', authorize('admin'), landController.remove);
 
 module.exports = router;
