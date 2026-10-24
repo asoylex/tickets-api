@@ -6,6 +6,7 @@ const productRoutes = require('./product.routes');
 const ticketRoutes = require('./ticket.routes');
 const userRoutes = require('./user.routes');
 const paymentRoutes = require('./payment.routes');
+const importRoutes = require('./import.routes');
 const { authenticate } = require('../middlewares/auth');
 
 const router = Router();
@@ -24,5 +25,6 @@ router.use('/products', productRoutes);
 router.use('/tickets', ticketRoutes);
 router.use('/users', userRoutes);
 router.use('/payments', paymentRoutes);
+router.use('/imports', importRoutes);
 
 module.exports = router;
