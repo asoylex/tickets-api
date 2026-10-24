@@ -208,14 +208,15 @@ const normalizeOptions = (input) => {
 // Aplica las decisiones del usuario sobre las líneas con cantidad 0 y las repetidas.
 const selectRows = (rows, options) => {
   const withoutZero = options.skipZeroQuantity ? rows.filter((row) => row.quantity !== 0) : rows;
-  const duplicateRows = options.skipDuplicateLines
-    ? new Set(findDuplicateLines(withoutZero).map((duplicate) => duplicate.rowNumber))
-    : new Set();
+  const skippedZeroRows = options.skipZeroQuantity ? rows.filter((row) => row.quantity === 0) : [];
+
+  const skippedDuplicates = options.skipDuplicateLines ? findDuplicateLines(withoutZero) : [];
+  const duplicateRowNumbers = new Set(skippedDuplicates.map((duplicate) => duplicate.rowNumber));
 
   return {
-    rows: withoutZero.filter((row) => !duplicateRows.has(row.rowNumber)),
-    skippedZeroQuantity: rows.length - withoutZero.length,
-    skippedDuplicates: duplicateRows.size,
+    rows: withoutZero.filter((row) => !duplicateRowNumbers.has(row.rowNumber)),
+    skippedZeroRows,
+    skippedDuplicates,
   };
 };
 
@@ -275,12 +276,17 @@ const execute = async (buffer, rawOptions) => {
   const tickets = groupTickets(selection.rows);
 
   return sequelize.transaction(async (transaction) => {
-    const found = await Ticket.findAll({ attributes: ['code'], where: { code: tickets.map((ticket) => ticket.code) }, transaction });
+    const allCodes = [...new Set(allRows.map((row) => row.ticketCode))];
+    const found = await Ticket.findAll({ attributes: ['code'], where: { code: allCodes }, transaction });
     const existingCodes = new Set(found.map((ticket) => ticket.code));
 
     const toWrite = tickets.filter((ticket) => options.existingTickets === 'replace' || !existingCodes.has(ticket.code));
     const codesToWrite = new Set(toWrite.map((ticket) => ticket.code));
     const rowsToWrite = selection.rows.filter((row) => codesToWrite.has(row.ticketCode));
+
+    // Las líneas descartadas de un ticket que ya existe y se omite entero no se cuentan: ese ticket no se toca.
+    const untouchedCodes = options.existingTickets === 'skip' ? existingCodes : new Set();
+    const countOfTouchedTickets = (skippedLines) => skippedLines.filter((line) => !untouchedCodes.has(line.ticketCode)).length;
 
     const suppliers = await ensureCatalog(Supplier, firstNameByCode(rowsToWrite, 'supplierCode', 'supplierName'), transaction);
     const lands = await ensureCatalog(Land, firstNameByCode(rowsToWrite, 'landCode', 'landName'), transaction);
@@ -294,7 +300,11 @@ const execute = async (buffer, rawOptions) => {
         products: { created: products.created },
       },
       tickets: { created: 0, replaced: 0, skippedExisting: tickets.length - toWrite.length },
-      lines: { created: 0, skippedDuplicates: selection.skippedDuplicates, skippedZeroQuantity: selection.skippedZeroQuantity },
+      lines: {
+        created: 0,
+        skippedDuplicates: countOfTouchedTickets(selection.skippedDuplicates),
+        skippedZeroQuantity: countOfTouchedTickets(selection.skippedZeroRows),
+      },
     };
 
     for (const ticket of toWrite) {
